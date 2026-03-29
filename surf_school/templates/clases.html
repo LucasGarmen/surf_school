@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block title %}Aulas disponíveis | SurfClass{% endblock %}
+
+{% block content %}
+<section class="hero hero-home">
+    <div>
+        <h1>Aulas de surf com reserva online</h1>
+        <p>Visualize horários, filtre por período e reserve sua aula de forma simples e organizada.</p>
+
+        <div class="actions-row" style="margin-top: 18px;">
+            {% if user.is_authenticated %}
+                <a class="btn btn-primary" href="{% url 'mis_reservas' %}">Ver minhas reservas</a>
+                <a class="btn btn-secondary" href="{% url 'editar_perfil' %}">Atualizar perfil</a>
+            {% else %}
+                <a class="btn btn-primary" href="{% url 'register' %}">Criar conta</a>
+                <a class="btn btn-secondary" href="{% url 'login' %}">Entrar</a>
+            {% endif %}
+        </div>
+
+        {% if user.is_authenticated and user.is_staff %}
+            <div class="actions-row" style="margin-top: 12px;">
+                <a class="btn btn-primary" href="{% url 'crear_clase' %}">Criar aula</a>
+                <a class="btn btn-secondary" href="{% url 'gestionar_reservas' %}">Gerenciar reservas</a>
+                <a class="btn btn-secondary" href="{% url 'gestionar_solicitudes_cancelacion' %}">Solicitações de cancelamento</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <aside class="hero-panel">
+        <h2>Encontre a aula certa</h2>
+        <p>Filtre por datas, nível e horário para ver apenas as aulas que fazem sentido para você.</p>
+
+        <div class="hero-stats">
+            <div class="stat-card">
+                <strong>Busca por período</strong>
+                <span>Ideal para viagens e semanas específicas</span>
+            </div>
+            <div class="stat-card">
+                <strong>Filtro por nível</strong>
+                <span>Mais clareza para cada aluno</span>
+            </div>
+            <div class="stat-card">
+                <strong>Filtro por horário</strong>
+                <span>Escolha o turno ideal</span>
+            </div>
+            <div class="stat-card">
+                <strong>Reserva rápida</strong>
+                <span>Processo simples e direto</span>
+            </div>
+        </div>
+    </aside>
+</section>
+
+<section class="filters-bar">
+    <form method="get" class="filters-grid">
+        <div>
+            <label for="fecha_desde">Data inicial</label>
+            <input type="date" name="fecha_desde" id="fecha_desde" value="{{ filtros.fecha_desde }}">
+        </div>
+
+        <div>
+            <label for="fecha_hasta">Data final</label>
+            <input type="date" name="fecha_hasta" id="fecha_hasta" value="{{ filtros.fecha_hasta }}">
+        </div>
+
+        <div>
+            <label for="nivel">Nível</label>
+            <select name="nivel" id="nivel">
+                <option value="">Todos</option>
+                {% for valor, texto in niveles %}
+                    <option value="{{ valor }}" {% if filtros.nivel == valor %}selected{% endif %}>{{ texto }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="turno">Horário</label>
+            <select name="turno" id="turno">
+                <option value="">Todos</option>
+                {% for valor, texto in turnos %}
+                    <option value="{{ valor }}" {% if filtros.turno == valor %}selected{% endif %}>{{ texto }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="filters-actions">
+            <a class="btn btn-secondary" href="{% url 'clases' %}">Limpar filtros</a>
+            <button type="submit">Filtrar</button>
+        </div>
+    </form>
+</section>
+
+<section>
+    <div class="section-header">
+        <h2 class="section-title">Próximas aulas</h2>
+        <span class="result-count">{{ clases|length }} aula{{ clases|length|pluralize }} encontrada{{ clases|length|pluralize }}</span>
+    </div>
+
+    <div class="grid grid-2">
+        {% for clase in clases %}
+            <article class="card">
+                <h3>{{ clase.fecha }}</h3>
+                <div class="info-list">
+                    <p><strong>Horário:</strong> {{ clase.get_turno_display }}</p>
+                    <p><strong>Nível:</strong> {{ clase.get_nivel_display }}</p>
+                    <p><strong>Vagas:</strong> {{ clase.cupo_disponible }} / {{ clase.cupo_maximo }}</p>
+                </div>
+
+                {% if user.is_authenticated and user.is_staff %}
+                    <div class="inline-links">
+                        <a href="{% url 'editar_clase' clase.id %}">Editar aula</a>
+                        <a href="{% url 'eliminar_clase' clase.id %}">Excluir aula</a>
+                    </div>
+                {% endif %}
+
+                <div class="actions-row" style="margin-top: 16px;">
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'reservar_clase' clase.id %}" onsubmit="return confirm('Tem certeza de que deseja reservar esta aula?');">
+                            {% csrf_token %}
+                            <button type="submit" {% if clase.cupo_disponible == 0 %}disabled{% endif %}>
+                                {% if clase.cupo_disponible > 0 %}Reservar aula{% else %}Lotada{% endif %}
+                            </button>
+                        </form>
+                    {% else %}
+                        <a class="btn btn-primary" href="{% url 'login' %}">Entrar para reservar</a>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <div class="empty-state">
+                <p>Nenhuma aula encontrada com os filtros selecionados.</p>
+            </div>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

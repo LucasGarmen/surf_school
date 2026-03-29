@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Criar conta | SurfClass{% endblock %}
+{% block topbar %}{% endblock %}
+{% block container_class %}page-narrow{% endblock %}
+
+{% block content %}
+<section class="form-card">
+    <h1>Criar conta</h1>
+    <p class="subtitle">Preencha seus dados para começar a reservar aulas.</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div>
+            <label for="username">Usuário</label>
+            <input type="text" name="username" id="username" value="{{ form_data.username|default:'' }}" required>
+        </div>
+
+        <div>
+            <label for="nombre">Nome completo</label>
+            <input type="text" name="nombre" id="nombre" value="{{ form_data.nombre|default:'' }}" required>
+        </div>
+
+        <div>
+            <label for="edad">Idade</label>
+            <input type="number" name="edad" id="edad" value="{{ form_data.edad|default:'' }}" required>
+        </div>
+
+        <div>
+            <label for="nivel">Nível de surf</label>
+            <select name="nivel" id="nivel" required>
+                <option value="P" {% if form_data.nivel == 'P' %}selected{% endif %}>Iniciante</option>
+                <option value="I" {% if form_data.nivel == 'I' %}selected{% endif %}>Intermediário</option>
+                <option value="A" {% if form_data.nivel == 'A' %}selected{% endif %}>Avançado</option>
+            </select>
+        </div>
+
+        <div>
+            <label for="telefono">Telefone</label>
+            <input type="text" name="telefono" id="telefono" value="{{ form_data.telefono|default:'' }}" required>
+        </div>
+
+        <div>
+            <label for="email_contacto">E-mail de contato</label>
+            <input type="email" name="email_contacto" id="email_contacto" value="{{ form_data.email_contacto|default:'' }}" required>
+        </div>
+
+        <div>
+            <label for="password">Senha</label>
+            <input type="password" name="password" id="password" required>
+        </div>
+
+        <div>
+            <label for="password2">Confirmar senha</label>
+            <input type="password" name="password2" id="password2" required>
+        </div>
+
+        {% if error %}
+            <p class="error-text">{{ error }}</p>
+        {% endif %}
+
+        <button type="submit">Cadastrar</button>
+    </form>
+
+    <div class="footer-links">
+        <a class="text-link" href="{% url 'login' %}">Já tenho conta</a>
+    </div>
+</section>
+{% endblock %}

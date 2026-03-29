@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Meu perfil | SurfClass{% endblock %}
+{% block container_class %}page-narrow{% endblock %}
+
+{% block content %}
+<section class="form-card">
+    <h1>Meu perfil</h1>
+    <p class="subtitle">Atualize seus dados de contato e nível de surf.</p>
+
+    <form method="post">
+        {% csrf_token %}
+
+        <div>
+            <label for="nombre">Nome</label>
+            <input type="text" name="nombre" id="nombre" value="{{ form_data.nombre|default:'' }}" required>
+        </div>
+
+        <div>
+            <label for="edad">Idade</label>
+            <input type="number" name="edad" id="edad" value="{{ form_data.edad|default:'' }}" required>
+        </div>
+
+        <div>
+            <label for="nivel">Nível</label>
+            <select name="nivel" id="nivel" required>
+                {% for valor, texto in niveles %}
+                    <option value="{{ valor }}" {% if form_data.nivel == valor %}selected{% endif %}>{{ texto }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label for="telefono">Telefone</label>
+            <input type="text" name="telefono" id="telefono" value="{{ form_data.telefono|default:'' }}" required>
+        </div>
+
+        <div>
+            <label for="email_contacto">E-mail</label>
+            <input type="email" name="email_contacto" id="email_contacto" value="{{ form_data.email_contacto|default:'' }}" required>
+        </div>
+
+        {% if error %}
+            <p class="error-text">{{ error }}</p>
+        {% endif %}
+
+        <button type="submit">Salvar alterações</button>
+    </form>
+
+    <div class="footer-links">
+        <a class="text-link" href="{% url 'cambiar_password' %}">Alterar senha</a>
+    </div>
+</section>
+{% endblock %}

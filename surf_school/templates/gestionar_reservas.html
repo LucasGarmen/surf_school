@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Gerenciar reservas | SurfClass{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Gerenciar reservas</h1>
+    <p>Visualize os dados dos alunos e atualize rapidamente o status de cada reserva.</p>
+</section>
+
+<section class="table-like">
+    {% for reserva in reservas %}
+        <article class="card">
+            <div class="info-list">
+                <p><strong>Aluno:</strong> {{ reserva.alumno.nombre }}</p>
+                <p><strong>Telefone:</strong> {{ reserva.alumno.telefono }}</p>
+                <p><strong>E-mail:</strong> {{ reserva.alumno.email_contacto }}</p>
+                <p><strong>Data:</strong> {{ reserva.clase.fecha }}</p>
+                <p><strong>Horário:</strong> {{ reserva.clase.get_turno_display }}</p>
+                <p><strong>Nível:</strong> {{ reserva.clase.get_nivel_display }}</p>
+                <p>
+                    <strong>Status:</strong>
+                    {% if reserva.estado == 'P' %}
+                        <span class="badge badge-warning">{{ reserva.get_estado_display }}</span>
+                    {% elif reserva.estado == 'C' %}
+                        <span class="badge badge-success">{{ reserva.get_estado_display }}</span>
+                    {% else %}
+                        <span class="badge badge-danger">{{ reserva.get_estado_display }}</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="actions-row">
+                {% if reserva.estado == 'P' %}
+                    <form method="post" action="{% url 'cambiar_estado_reserva' reserva.id 'C' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-success">Confirmar</button>
+                    </form>
+                    <form method="post" action="{% url 'cambiar_estado_reserva' reserva.id 'X' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger">Cancelar</button>
+                    </form>
+                {% elif reserva.estado == 'C' %}
+                    <form method="post" action="{% url 'cambiar_estado_reserva' reserva.id 'P' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-secondary">Marcar como pendente</button>
+                    </form>
+                    <form method="post" action="{% url 'cambiar_estado_reserva' reserva.id 'X' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger">Cancelar</button>
+                    </form>
+                {% elif reserva.estado == 'X' %}
+                    <form method="post" action="{% url 'cambiar_estado_reserva' reserva.id 'P' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-secondary">Marcar como pendente</button>
+                    </form>
+                    <form method="post" action="{% url 'cambiar_estado_reserva' reserva.id 'C' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-success">Confirmar</button>
+                    </form>
+                {% endif %}
+            </div>
+        </article>
+    {% empty %}
+        <div class="empty-state">
+            <p>Não há reservas cadastradas.</p>
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}

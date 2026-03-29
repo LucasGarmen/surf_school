@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Solicitações de cancelamento | SurfClass{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Solicitações de cancelamento</h1>
+    <p>Analise os pedidos enviados pelos alunos e responda rapidamente.</p>
+</section>
+
+<section class="table-like">
+    {% for solicitud in solicitudes %}
+        <article class="card">
+            <div class="info-list">
+                <p><strong>Aluno:</strong> {{ solicitud.reserva.alumno.nombre }}</p>
+                <p><strong>Data:</strong> {{ solicitud.reserva.clase.fecha }}</p>
+                <p><strong>Horário:</strong> {{ solicitud.reserva.clase.get_turno_display }}</p>
+                <p><strong>Motivo:</strong> {{ solicitud.motivo }}</p>
+                <p>
+                    <strong>Status da solicitação:</strong>
+                    {% if solicitud.estado == 'P' %}
+                        <span class="badge badge-warning">{{ solicitud.get_estado_display }}</span>
+                    {% elif solicitud.estado == 'A' %}
+                        <span class="badge badge-success">{{ solicitud.get_estado_display }}</span>
+                    {% else %}
+                        <span class="badge badge-danger">{{ solicitud.get_estado_display }}</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            {% if solicitud.estado == 'P' %}
+                <div class="actions-row">
+                    <form method="post" action="{% url 'responder_solicitud_cancelacion' solicitud.id 'aprobar' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-success">Aprovar</button>
+                    </form>
+                    <form method="post" action="{% url 'responder_solicitud_cancelacion' solicitud.id 'rechazar' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger">Rejeitar</button>
+                    </form>
+                </div>
+            {% endif %}
+        </article>
+    {% empty %}
+        <div class="empty-state">
+            <p>Não há solicitações de cancelamento.</p>
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}

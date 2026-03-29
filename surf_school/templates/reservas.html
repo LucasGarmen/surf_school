@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Minhas reservas | SurfClass{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Minhas reservas</h1>
+    <p>Acompanhe o status das suas reservas e gerencie seus agendamentos.</p>
+</section>
+
+<section class="grid grid-2">
+    {% for reserva in reservas %}
+        <article class="card {% if reserva.apagada %}card-muted{% endif %}">
+        {% if reserva.ya_paso %}
+            <p><span class="badge badge-secondary">Aula finalizada</span></p>
+        {% endif %}
+            <h3>{{ reserva.clase.fecha }}</h3>
+            <div class="info-list">
+                <p><strong>Horário:</strong> {{ reserva.clase.get_turno_display }}</p>
+                <p><strong>Nível da aula:</strong> {{ reserva.clase.get_nivel_display }}</p>
+                <p>
+                    <strong>Status:</strong>
+                    {% if reserva.estado == 'P' %}
+                        <span class="badge badge-warning">{{ reserva.get_estado_display }}</span>
+                    {% elif reserva.estado == 'C' %}
+                        <span class="badge badge-success">{{ reserva.get_estado_display }}</span>
+                    {% else %}
+                        <span class="badge badge-danger">{{ reserva.get_estado_display }}</span>
+                    {% endif %}
+                </p>
+            </div>
+
+            <div class="actions-row">
+                {% if reserva.estado == 'P' %}
+                    <form method="post" action="{% url 'cancelar_reserva' reserva.id %}" onsubmit="return confirm('Tem certeza de que deseja cancelar esta reserva?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-danger">Cancelar reserva</button>
+                    </form>
+                {% elif reserva.estado == 'C' %}
+                    <a class="btn btn-secondary" href="{% url 'solicitar_cancelacion' reserva.id %}">Solicitar cancelamento</a>
+                {% endif %}
+            </div>
+        </article>
+    {% empty %}
+        <div class="empty-state">
+            <p>Você ainda não tem reservas.</p>
+        </div>
+    {% endfor %}
+</section>
+{% endblock %}
