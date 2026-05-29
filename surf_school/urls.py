@@ -31,6 +31,7 @@ router.register(r'api/clases', ClaseViewSet)
 router.register(r'api/reservas', ReservaViewSet)
 
 urlpatterns = [
+    path('', clases_view, name='home'),
     path('login/', login_view, name='login'),
     path('register/', register_view, name='register'),
     path('clases/', clases_view, name='clases'),
